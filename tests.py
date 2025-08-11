@@ -23,9 +23,10 @@ class TestBooksCollector:
     # напиши свои тесты ниже
     # чтобы тесты были независимыми в каждом из них создавай отдельный экземпляр класса BooksCollector()
 
-    @pytest.fixture
-    def collector(self):
-        return BooksCollector()
+    def test_set_book_genre_valid(self, collector):
+        collector.add_new_book('Гарри Поттер')
+        collector.set_book_genre('Гарри Поттер', 'Фантастика')
+        assert collector.get_book_genre('Гарри Поттер') == 'Фантастика'
 
     def test_add_new_book_valid_name(self, collector):
         collector.add_new_book('Гарри Поттер')
@@ -40,11 +41,6 @@ class TestBooksCollector:
         collector.add_new_book('Гарри Поттер')
         collector.add_new_book('Гарри Поттер')
         assert len(collector.get_books_genre()) == 1
-
-    def test_set_book_genre_valid(self, collector):
-        collector.add_new_book('Гарри Поттер')
-        collector.set_book_genre('Гарри Поттер', 'Фантастика')
-        assert collector.get_book_genre('Гарри Поттер') == 'Фантастика'
 
     def test_set_book_genre_invalid_genre(self, collector):
         collector.add_new_book('Гарри Поттер')
@@ -107,3 +103,27 @@ class TestBooksCollector:
         collector.add_new_book('Гарри Поттер')
         collector.add_book_in_favorites('Гарри Поттер')
         assert collector.get_list_of_favorites_books() == ['Гарри Поттер']
+
+    def test_get_books_genre_returns_dict(self, collector):
+        assert isinstance(collector.get_books_genre(), dict)
+
+    def test_get_books_genre_empty_for_new_collector(self, collector):
+        assert collector.get_books_genre() == {}
+
+    def test_get_books_genre_contains_added_books(self, collector):
+        collector.add_new_book('Гарри Поттер')
+        collector.add_new_book('Властелин Колец')
+        books_genre = collector.get_books_genre()
+        assert 'Гарри Поттер' in books_genre
+        assert 'Властелин Колец' in books_genre
+        assert len(books_genre) == 2
+
+    def test_get_books_genre_shows_set_genres(self, collector):
+        collector.add_new_book('Метро 2033')
+        collector.set_book_genre('Метро 2033', 'Фантастика')
+        assert collector.get_books_genre()['Метро 2033'] == 'Фантастика'
+
+    def test_get_books_genre_not_contain_invalid_books(self, collector):
+        collector.add_new_book('Война и мир')
+        books_genre = collector.get_books_genre()
+        assert 'Преступление и наказание' not in books_genre
